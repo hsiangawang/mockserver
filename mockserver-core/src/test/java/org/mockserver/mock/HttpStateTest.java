@@ -64,6 +64,7 @@ import static org.mockserver.model.PortBinding.portBinding;
 import static org.mockserver.model.RetrieveType.REQUEST_RESPONSES;
 import static org.slf4j.event.Level.INFO;
 
+import org.skyscreamer.jsonassert.JSONAssert;
 /**
  * @author jamesdbloom
  */
@@ -302,11 +303,13 @@ public class HttpStateTest {
 
         // when
         boolean handle = httpState.handle(request, responseWriter, false);
-
+        System.out.print("--------------------" + NEW_LINE);
+        System.out.print(responseWriter.response.getBodyAsString());
+        System.out.print("--------------------" + NEW_LINE);
         // then
         assertThat(handle, is(true));
         assertThat(responseWriter.response.getStatusCode(), is(201));
-        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("[ {" + NEW_LINE +
+        /*assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("[ {" + NEW_LINE +
             "  \"id\" : \""));
         assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("\"," + NEW_LINE +
             "  \"priority\" : 0," + NEW_LINE +
@@ -324,7 +327,25 @@ public class HttpStateTest {
             "  \"timeToLive\" : {" + NEW_LINE +
             "    \"unlimited\" : true" + NEW_LINE +
             "  }" + NEW_LINE +
-            "} ]"));
+            "} ]"));*/
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("[ {" + NEW_LINE));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("  \"id\" : \""));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("  \"priority\" : 0," + NEW_LINE));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("  \"httpRequest\" : {" + NEW_LINE +
+            "    \"path\" : \"request_one\"" + NEW_LINE +
+            "  }" + NEW_LINE));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("  \"httpResponse\" : {" + NEW_LINE +
+            "    \"statusCode\" : 200," + NEW_LINE +
+            "    \"reasonPhrase\" : \"OK\"," + NEW_LINE +
+            "    \"body\" : \"response_one\"" + NEW_LINE +
+            "  }" + NEW_LINE));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("  \"times\" : {" + NEW_LINE +
+            "    \"unlimited\" : true" + NEW_LINE +
+            "  }" + NEW_LINE));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("  \"timeToLive\" : {" + NEW_LINE +
+            "    \"unlimited\" : true" + NEW_LINE +
+            "  }" + NEW_LINE));
+        assertThat(responseWriter.response.getBodyAsString(), CoreMatchers.containsString("} ]"));
         assertThat(httpState.firstMatchingExpectation(request("request_one")), is(expectationOne));
     }
 
